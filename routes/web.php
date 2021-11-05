@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use \Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,10 +14,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+/* Rotta che gestisce la homepage visibile agli utenti */
+Route::get('/', 'HomeController@index')->name('index');
 
+/* Serie di rotte che gestiscono il meccanismo di autenticazione */
 Auth::routes();
+// Route::get('/admin', 'HomeController@index')->name('admin');
+/* Serie di rotte che gestiscono il backoffice */
+Route::middleware('auth')->prefix("admin")->namespace('Admin')->name("admin.")
+->group(function(){
+    //pagina di atterraggio dopo il login
+    Route::get('/', 'HomeController@index')->name('index');
 
-Route::get('/admin', 'HomeController@index')->name('admin');
+    Route::resource('/posts', 'PostController');
+});
