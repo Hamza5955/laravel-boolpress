@@ -14,13 +14,13 @@ class PostController extends Controller
      */
     public function index()
     {
-        $post = Post::all();
-        return view('guest.posts.index', compact('posts'));
+        $posts = Post::all();
+        return view('admin.posts.index', compact('posts'));
     }
 
     /**
      * Show the form for creating a new resource.
-     *
+     *iews
      * @return \Illuminate\Http\Response
      */
     public function create()
