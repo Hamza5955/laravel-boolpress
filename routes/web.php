@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', 'HomeController@index')->name('index');
 
 /* Serie di rotte che gestiscono il meccanismo di autenticazione */
+Route::resource("/posts", "PostController");
 Auth::routes();
 // Route::get('/admin', 'HomeController@index')->name('admin');
 /* Serie di rotte che gestiscono il backoffice */
@@ -27,4 +28,5 @@ Route::middleware('auth')->prefix("admin")->namespace('Admin')->name("admin.")
     Route::get('/', 'HomeController@index')->name('index');
 
     Route::resource('/posts', 'PostController');
+    Route::resource("/categories", "CategoryController");
 });

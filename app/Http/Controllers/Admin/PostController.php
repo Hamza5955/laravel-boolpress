@@ -43,7 +43,8 @@ class PostController extends Controller
         // Per prima cosa valido i dati che arrivano dal form
         $request->validate([
             "title" => "required",
-            "content" => "required"
+            "content" => "required",
+            "category_id" => "nullable|exists:categories,id"
         ]);
 
         $form_data = $request->all();
@@ -100,7 +101,8 @@ class PostController extends Controller
             abort(404);
         }
 
-        return view("admin.posts.edit", compact("post"));
+        $categories = Category::all();
+        return view("admin.posts.edit", compact("post", "categories"));
     }
 
     /**
@@ -122,7 +124,7 @@ class PostController extends Controller
         // Verifico se il titolo ricevuto dal form è diverso dal vecchio titolo
 
         if ($form_data["title"] != $post->title) {
-            // è stato modificato il titolo, quindi devo modificare anche lo slug
+            // modifica tilo -> slag
 
             $slug = Str::slug($form_data["title"], "-");
 
