@@ -28,7 +28,6 @@
                       <div class="alert alert-danger">{{ $message }}</div>
                   @enderror
                </div>
-
                <div class="form-group">
                   <label for="content">Contenuto</label>
                   <textarea id="content" name="content" class="form-control @error("content") is-invalid @enderror">{{ old("content") }}</textarea>
@@ -36,7 +35,15 @@
                       <div class="alert alert-danger">{{ $message }}</div>
                   @enderror
                </div>
-
+               <div class="form-group">
+                    <label for="category_id">Categoria</label>
+                    <select name="category_id" id="category_id" class="form-control">
+                        <option value="">-- Seleziona Categoria --</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category["id"] }}">{{ $category["name"] }}</option>
+                        @endforeach
+                    </select>
+               </div>
                <div class="form-group">
                   <button type="submit" class="btn btn-primary">Crea Post</button>
                </div>
