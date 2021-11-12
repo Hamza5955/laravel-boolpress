@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Category;
 use App\Post;
+use App\Tag;
 
 class PostController extends Controller
 {
@@ -18,7 +19,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::all();
-        return view("admin.posts.index", compact("posts"));
+        return view('admin.posts.index', compact('posts'));
     }
 
     /**
@@ -29,7 +30,8 @@ class PostController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view("admin.posts.create", compact("categories"));
+        $tags = Tag::all();
+        return view('admin.posts.create', compact('categories', 'tags'));
     }
 
     /**
@@ -42,9 +44,10 @@ class PostController extends Controller
     {
         // Per prima cosa valido i dati che arrivano dal form
         $request->validate([
-            "title" => "required",
-            "content" => "required",
-            "category_id" => "nullable|exists:categories,id"
+            'title' => 'required',
+            'content' => 'required',
+            'category_id' => 'nullable|exists:categories,id',
+            'tags' => 'exists:tags,id'
         ]);
 
         $form_data = $request->all();
@@ -55,21 +58,23 @@ class PostController extends Controller
         // Titolo: il mio post
         // Slug: il-mio-post
 
-        $slug = Str::slug($new_post->title, "-");
+        $slug = Str::slug($new_post->title, '-');
         // $slug_base = $slug;
 
-        $slug_presente = Post::where("slug", $slug)->first();
+        $slug_presente = Post::where('slug', $slug)->first();
 
         $contatore = 1;
 
         while ($slug_presente) {
-            $slug = $slug . "-" . $contatore;
-            $slug_presente = Post::where("slug", $slug)->first();
+            $slug = $slug . '-' . $contatore;
+            $slug_presente = Post::where('slug', $slug)->first();
             $contatore++;
         }
 
         $new_post->slug = $slug;
         $new_post->save();
+
+        $new_post->tags()->attach($form_data['tags']);
 
         return redirect()->route("admin.posts.index")->with("inserted", "Il post è stato correttamente salvato");
     }
@@ -102,7 +107,8 @@ class PostController extends Controller
         }
 
         $categories = Category::all();
-        return view("admin.posts.edit", compact("post", "categories"));
+        $tags = Tag::all();
+        return view('admin.posts.edit', compact('post', 'categories', 'tags'));
     }
 
     /**
@@ -115,32 +121,40 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         $request->validate([
-            "title" => "required",
-            "content" => "required"
+            'title' => 'required',
+            'content' => 'required',
+            'category_id' => 'nullable|exists:categories,id',
+            'tags' => 'exists:tags,id'
         ]);
 
         $form_data = $request->all();
 
         // Verifico se il titolo ricevuto dal form è diverso dal vecchio titolo
 
-        if ($form_data["title"] != $post->title) {
+        if ($form_data['title'] != $post->title) {
             // modifica tilo -> slag
 
-            $slug = Str::slug($form_data["title"], "-");
+            $slug = Str::slug($form_data['title'], '-');
 
-            $slug_presente = Post::where("slug", $slug)->first();
+            $slug_presente = Post::where('slug', $slug)->first();
 
             $contatore = 1;
             while ($slug_presente) {
-                $slug = $slug . "-" . $contatore;
-                $slug_presente = Post::where("slug", $slug)->first();
+                $slug = $slug . '-' . $contatore;
+                $slug_presente = Post::where('slug', $slug)->first();
                 $contatore++;
             }
 
-            $form_data["slug"] = $slug;
+            $form_data['slug'] = $slug;
         };
 
         $post->update($form_data);
+
+        if (array_key_exists('tags', $form_data)) {
+            $post->tags()->sync($form_data['tags']);
+        } else {
+            $post->tags()->sync([]);
+        }
 
         return redirect()->route("admin.posts.index")->with("updated", "Post correttamente aggiornato");
     }
