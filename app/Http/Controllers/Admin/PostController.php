@@ -74,6 +74,7 @@ class PostController extends Controller
         $new_post->slug = $slug;
         $new_post->save();
 
+        if(array_key_exists('tags', $form_data))
         $new_post->tags()->attach($form_data['tags']);
 
         return redirect()->route("admin.posts.index")->with("inserted", "Il post è stato correttamente salvato");
